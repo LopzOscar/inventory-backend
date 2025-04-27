@@ -114,6 +114,82 @@ public class CategoryServiceImpl implements ICategoryService{
 		return new ResponseEntity<CategoryResponseRest>(resp, HttpStatus.OK);
 	}
 
+	@Override
+	@Transactional
+	public ResponseEntity<CategoryResponseRest> update(Category category, Long id) {
+
+		CategoryResponseRest resp = new CategoryResponseRest();
+		List<Category> list = new ArrayList<>();
+		
+		try {
+			
+			Optional<Category> categorySearch = categoryDao.findById(id); 
+			
+			if(categorySearch.isPresent()) {
+				
+				// se procede a actualizar el registro
+				categorySearch.get().setName(category.getName());
+				categorySearch.get().setDescription(category.getDescription());
+
+				Category categoryToUpdate = categoryDao.save(categorySearch.get());
+				
+				if(categoryToUpdate != null) {
+					
+					list.add(categoryToUpdate);
+					resp.getCategoryResponse().setCategory(list);
+					resp.setMetadata("Respuesta ok", "00", "Categoría Actualizada");
+					
+				} else {
+					
+					// no se pudo actualizar el id, error en los datos
+					resp.setMetadata("Respuesta nok", "-2", "Categoría no actualizada");
+					return new ResponseEntity<CategoryResponseRest>(resp, HttpStatus.BAD_REQUEST);
+
+				}
+				
+			} else {
+				
+				// no se encuentra el id a actualizar, se regresa error
+				resp.setMetadata("Respuesta nok", "-1", "Categoría no encontrada");
+				return new ResponseEntity<CategoryResponseRest>(resp, HttpStatus.NOT_FOUND);
+				
+			}
+			
+		} catch (Exception e) {
+			
+			resp.setMetadata("Respuesta nok", "-1", "Error al actualizar la consulta");
+			e.getStackTrace();
+			return new ResponseEntity<CategoryResponseRest>(resp, HttpStatus.INTERNAL_SERVER_ERROR);
+			
+		}
+		
+		return new ResponseEntity<CategoryResponseRest>(resp, HttpStatus.OK);
+	}
+
+	
+	@Override
+	@Transactional
+	public ResponseEntity<CategoryResponseRest> delete(Long id) {
+		
+		CategoryResponseRest resp = new CategoryResponseRest();
+		
+		try {
+			
+			categoryDao.deleteById(id);
+			resp.setMetadata("Respuesta ok", "00", "Categoría eliminada");
+			
+		} catch (Exception e) {
+			
+			resp.setMetadata("Respuesta nok", "-1", "error al eliminar por id");
+			e.getStackTrace();
+			return new ResponseEntity<CategoryResponseRest>(resp, HttpStatus.INTERNAL_SERVER_ERROR);
+			
+		}
+		
+		return new ResponseEntity<CategoryResponseRest>(resp, HttpStatus.OK);
+		
+	}
+
 	
 	
 }

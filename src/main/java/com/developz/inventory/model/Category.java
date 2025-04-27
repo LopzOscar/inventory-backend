@@ -51,6 +51,7 @@ public class Category implements Serializable{
 		this.name = name;
 		this.description = description;
 	}
+	
 	public Category() {
 		super();
 	} 
